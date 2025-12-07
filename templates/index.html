@@ -1,0 +1,2289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>股票投资模型 · 用户首页</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 可选：统一基础样式 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8/normalize.css">
+    <style>
+        /* ===== 全局布局 ===== */
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Microsoft YaHei", sans-serif;
+            background: #f5f6fa;
+            color: #111827;
+        }
+
+        .layout {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* ===== 顶栏 ===== */
+        .topbar {
+            height: 56px;
+            background: #1f2933;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 24px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .12);
+        }
+
+        .topbar-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .topbar-right {
+            font-size: 13px;
+            opacity: .9;
+        }
+
+        /* ===== 主体区域：左菜单 + 右内容 ===== */
+        .container {
+            flex: 1;
+            display: flex;
+            min-height: 0;
+        }
+
+        /* 左侧菜单 */
+        .sidebar {
+            width: 220px;
+            background: #2f3844;
+            color: #cbd2e1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            padding: 16px 20px;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #9aa5b1;
+        }
+
+        .menu {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .menu-item {
+            padding: 10px 20px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background .15s ease;
+        }
+
+        .menu-item:hover {
+            background: #394451;
+        }
+
+        .menu-item.active {
+            background: #111827;
+            color: #fff;
+        }
+
+        .menu-item .label {
+            flex: 1;
+        }
+
+        .menu-item .badge {
+            font-size: 11px;
+            background: rgba(255, 255, 255, .06);
+            padding: 2px 6px;
+            border-radius: 999px;
+        }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 12px 20px;
+            font-size: 12px;
+            color: #9aa5b1;
+            border-top: 1px solid rgba(255, 255, 255, .06);
+            line-height: 1.5;
+        }
+
+        /* 右侧内容区 */
+        .main {
+            flex: 1;
+            padding: 16px 20px 20px;
+            overflow: auto;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .page-header-left h1 {
+            margin: 0 0 4px;
+            font-size: 20px;
+        }
+
+        .page-header-left .subtitle {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .page-header-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 按钮 */
+        .btn {
+            border: none;
+            outline: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #374151;
+        }
+
+        .btn:disabled {
+            opacity: .6;
+            cursor: default;
+        }
+
+        /* 卡片 & 网格 */
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 12px 14px 14px;
+            box-shadow: 0 1px 3px rgba(15, 23, 42, .08);
+        }
+
+        .card + .card {
+            margin-top: 12px;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .card-header h2 {
+            font-size: 14px;
+            margin: 0;
+        }
+
+        .card-header .sub {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .kpi {
+            background: #f9fafb;
+            border-radius: 6px;
+            padding: 10px 10px 8px;
+        }
+
+        .kpi-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .kpi-value {
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .kpi-trend {
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        .kpi-trend.up {
+            color: #059669;
+        }
+
+        .kpi-trend.down {
+            color: #b91c1c;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 3fr 2fr;
+            gap: 16px;
+            margin-top: 16px;
+            margin-bottom: 16px;
+        }
+
+        .chart-placeholder {
+            height: 260px;
+            border-radius: 6px;
+            border: 1px dashed #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            color: #9ca3af;
+        }
+
+        /* 表格 */
+        .table-wrapper {
+            max-height: 260px;
+            overflow: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+
+        th, td {
+            padding: 6px 8px;
+            border-bottom: 1px solid #f1f5b9;
+            text-align: left;
+            white-space: nowrap;
+        }
+
+        th {
+            background: #f9fafb;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        tr:hover td {
+            background: #f9fafb;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 6px;
+            border-radius: 999px;
+            font-size: 11px;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .tag-warn {
+            background: #fef9c3;
+            color: #92400e;
+        }
+
+        .tag-danger {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            margin-right: 4px;
+        }
+
+        .status-dot.ok {
+            background: #22c55e;
+        }
+
+        .status-dot.warn {
+            background: #eab308;
+        }
+
+        .status-dot.err {
+            background: #ef4444;
+        }
+
+        /* ===== 全量股票列表：筛选 & 分页 ===== */
+        .stocks-filter-bar {
+            margin-bottom: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .stocks-filter-group {
+            display: flex;
+            flex-direction: column;
+            font-size: 12px;
+            min-width: 140px;
+        }
+
+        .stocks-filter-group label {
+            margin-bottom: 2px;
+            color: #6b7280;
+        }
+
+        .stocks-filter-group input,
+        .stocks-filter-group select {
+            height: 28px;
+            padding: 0 8px;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+            font-size: 12px;
+            background: #fff;
+            box-sizing: border-box;
+        }
+
+        .stocks-filter-group input:focus,
+        .stocks-filter-group select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 1px rgba(37, 99, 235, .2);
+        }
+
+        .stocks-toolbar-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .table-foot {
+            margin-top: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .pagination button {
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+
+        .stocks-table-wrapper {
+            max-height: none;
+        }
+
+        /* ===== 选股策略配置 ===== */
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px 16px;
+            margin-bottom: 4px;
+        }
+
+        .strategy-field {
+            display: flex;
+            flex-direction: column;
+            font-size: 12px;
+        }
+
+        .strategy-field label {
+            margin-bottom: 2px;
+            color: #6b7280;
+        }
+
+        .strategy-field input,
+        .strategy-field select {
+            height: 28px;
+            padding: 0 8px;
+            border-radius: 4px;
+            border: 1px solid #d1d5db;
+            font-size: 12px;
+            background: #fff;
+            box-sizing: border-box;
+        }
+
+        .strategy-field input:focus,
+        .strategy-field select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 1px rgba(37,99,235,.2);
+        }
+
+        .strategy-help {
+            font-size: 12px;
+            color: #9ca3af;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        .strategy-weight-footer {
+            margin-top: 4px;
+            font-size: 12px;
+            color: #6b7280;
+            text-align: right;
+        }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .kpi-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .strategy-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                overflow-x: auto;
+                height: auto;
+            }
+
+            .sidebar-header,
+            .sidebar-footer {
+                display: none;
+            }
+
+            .menu-item {
+                padding: 10px 12px;
+            }
+
+            .main {
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .strategy-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="layout">
+    <!-- 顶栏 -->
+    <header class="topbar">
+        <div class="topbar-title">股票投资模型 · 用户首页</div>
+        <div class="topbar-right">
+            <span id="env-label">环境：DEV</span>
+            <span style="margin: 0 8px; opacity: .5;">|</span>
+            <span id="user-label">当前用户：demo</span>
+        </div>
+    </header>
+
+    <!-- 主体 -->
+    <div class="container">
+        <!-- 左侧菜单 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">功能导航</div>
+            <ul class="menu" id="menu">
+                <li class="menu-item active" data-page="dashboard">
+                    <span class="label">概览仪表盘</span>
+                    <span class="badge">HOME</span>
+                </li>
+                <li class="menu-item" data-page="stocks">
+                    <span class="label">全量股票</span>
+                </li>
+                <li class="menu-item" data-page="strategy">
+                    <span class="label">选股策略</span>
+                </li>
+                <li class="menu-item" data-page="jobs">
+                    <span class="label">数据任务</span>
+                </li>
+                <li class="menu-item" data-page="settings">
+                    <span class="label">系统设置</span>
+                </li>
+            </ul>
+            <div class="sidebar-footer">
+                数据来源：BaoStock + AkShare<br>
+                存储：SQL Server
+            </div>
+        </aside>
+
+        <!-- 右侧内容 -->
+        <main class="main">
+            <!-- 仪表盘页面 -->
+            <section id="page-dashboard">
+                <div class="page-header">
+                    <div class="page-header-left">
+                        <h1>概览仪表盘</h1>
+                        <div class="subtitle">整体数据健康度 & 选股策略效果一屏掌握</div>
+                    </div>
+                    <div class="page-header-actions">
+                        <button class="btn btn-secondary" id="btn-refresh-overview">刷新数据</button>
+                        <button class="btn btn-primary" id="btn-run-screener">执行当日选股</button>
+                    </div>
+                </div>
+
+                <!-- 核心 KPI -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>核心指标</h2>
+                        <div class="sub">按最新交易日统计</div>
+                    </div>
+                    <div class="kpi-grid">
+                        <div class="kpi">
+                            <div class="kpi-label">股票总数</div>
+                            <div class="kpi-value" id="kpi-stock-count">--</div>
+                            <div class="kpi-trend" id="kpi-stock-count-trend"></div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">有日线数据股票数</div>
+                            <div class="kpi-value" id="kpi-kline-count">--</div>
+                            <div class="kpi-trend" id="kpi-kline-count-trend"></div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">策略入选股票数</div>
+                            <div class="kpi-value" id="kpi-screen-count">--</div>
+                            <div class="kpi-trend up" id="kpi-screen-count-trend"></div>
+                        </div>
+                        <div class="kpi">
+                            <div class="kpi-label">最新交易日</div>
+                            <div class="kpi-value" id="kpi-latest-trade-date">--</div>
+                            <div class="kpi-trend" id="kpi-latest-trade-date-trend"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 中部：左图表右任务状态 -->
+                <div class="content-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>估值分布 & 策略收益曲线</h2>
+                            <div class="sub">ECharts 容器，建议对接 /api/overview/series</div>
+                        </div>
+                        <div id="chart-overview" class="chart-placeholder">
+                            图表区域（后续用 ECharts 渲染）
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>数据任务状态</h2>
+                            <div class="sub">最近一次 Job 执行结果</div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table>
+                                <thead>
+                                <tr>
+                                    <th>任务</th>
+                                    <th>最近执行时间</th>
+                                    <th>耗时</th>
+                                    <th>结果</th>
+                                </tr>
+                                </thead>
+                                <tbody id="job-status-tbody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 底部：当日策略入选 Top10 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>当日策略入选 Top 10</h2>
+                        <div class="sub">来源：dm_screen_pick，按综合评分排序</div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>股票代码</th>
+                                <th>股票名称</th>
+                                <th>市值(亿)</th>
+                                <th>PB</th>
+                                <th>PE(TTM)</th>
+                                <th>ROE</th>
+                                <th>股息率</th>
+                                <th>评分</th>
+                                <th>状态</th>
+                            </tr>
+                            </thead>
+                            <tbody id="screen-top-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 全量股票列表页面 -->
+            <section id="page-stocks" style="display:none;">
+                <div class="page-header">
+                    <div class="page-header-left">
+                        <h1>全量股票列表</h1>
+                        <div class="subtitle">
+                            一次性加载全市场股票，前端按市值 / PE / PB / 行业等维度筛选、分页展示
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2>筛选条件</h2>
+                        <div class="sub">数据源：/api/stocks</div>
+                    </div>
+
+                    <!-- 筛选条 -->
+                    <div class="stocks-filter-bar">
+                        <div class="stocks-filter-group" style="min-width: 200px;">
+                            <label for="stocks-filter-keyword">搜索（代码 / 名称）</label>
+                            <input id="stocks-filter-keyword" type="text" placeholder="如 600000 / 浦发银行"
+                                   data-filter-input="stocks">
+                        </div>
+
+                        <div class="stocks-filter-group">
+                            <label for="stocks-filter-industry">行业</label>
+                            <select id="stocks-filter-industry" data-filter-input="stocks">
+                                <option value="">全部行业</option>
+                            </select>
+                        </div>
+
+                        <div class="stocks-filter-group">
+                            <label for="stocks-filter-mv-min">市值 ≥（亿）</label>
+                            <input id="stocks-filter-mv-min" type="number" step="1" placeholder="如 100"
+                                   data-filter-input="stocks">
+                        </div>
+
+                        <div class="stocks-filter-group">
+                            <label for="stocks-filter-mv-max">市值 ≤（亿）</label>
+                            <input id="stocks-filter-mv-max" type="number" step="1" placeholder=""
+                                   data-filter-input="stocks">
+                        </div>
+
+                        <div class="stocks-filter-group">
+                            <label for="stocks-filter-pb-max">PB ≤</label>
+                            <input id="stocks-filter-pb-max" type="number" step="0.01" placeholder="如 1.0"
+                                   data-filter-input="stocks">
+                        </div>
+
+                        <div class="stocks-filter-group">
+                            <label for="stocks-filter-pe-max">PE(TTM) ≤</label>
+                            <input id="stocks-filter-pe-max" type="number" step="1" placeholder="如 20"
+                                   data-filter-input="stocks">
+                        </div>
+
+                        <div class="stocks-filter-group">
+                            <label for="stocks-sort-select">排序</label>
+                            <select id="stocks-sort-select">
+                                <option value="score_desc">综合评分 ↓</option>
+                                <option value="mv_desc">市值 ↓</option>
+                                <option value="mv_asc">市值 ↑</option>
+                                <option value="pb_asc">PB ↑</option>
+                                <option value="pb_desc">PB ↓</option>
+                                <option value="pe_asc">PE ↑</option>
+                                <option value="pe_desc">PE ↓</option>
+                                <option value="div_desc">股息率 ↓</option>
+                                <option value="roe_desc">ROE ↓</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- 工具按钮 -->
+                    <div class="stocks-toolbar-actions">
+                        <button class="btn btn-secondary" id="stocks-btn-refresh">刷新数据</button>
+                        <button class="btn btn-ghost" id="stocks-btn-reset">重置筛选</button>
+                    </div>
+
+                    <!-- 列表 -->
+                    <div class="table-wrapper stocks-table-wrapper">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>股票代码</th>
+                                <th>名称</th>
+                                <th>行业</th>
+                                <th>市值(亿)</th>
+                                <th>PB</th>
+                                <th>PE(TTM)</th>
+                                <th>ROE</th>
+                                <th>股息率</th>
+                                <th>综合评分</th>
+                            </tr>
+                            </thead>
+                            <tbody id="stocks-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 分页 & 统计 -->
+                    <div class="table-foot">
+                        <div id="stocks-summary">共 0 只股票（已加载 0 条）</div>
+                        <div class="pagination">
+                            <button class="btn btn-ghost" id="stocks-prev-page">上一页</button>
+                            <span id="stocks-page-info">第 1 / 1 页</span>
+                            <button class="btn btn-ghost" id="stocks-next-page">下一页</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 选股策略配置页面 -->
+            <section id="page-strategy" style="display:none;">
+                <div class="page-header">
+                    <div class="page-header-left">
+                        <h1>选股策略配置</h1>
+                        <div class="subtitle">
+                            配置基础筛选条件 + 评分权重，保存为全局策略，供当日选股 Job 使用
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 筛选条件 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>基础筛选条件</h2>
+                        <div class="sub" id="strategy-current-name">当前策略：默认策略</div>
+                    </div>
+                    <div class="strategy-grid">
+                        <div class="strategy-field">
+                            <label for="strategy-pb-max">市净率 PB 最大值</label>
+                            <input id="strategy-pb-max" type="number" step="0.01" placeholder="如 1.0">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="strategy-mv-min">总市值 ≥（亿）</label>
+                            <input id="strategy-mv-min" type="number" step="1" placeholder="如 100">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="strategy-roe-min">ROE 下限（%）</label>
+                            <input id="strategy-roe-min" type="number" step="0.1" placeholder="如 10">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="strategy-debt-max">资产负债率上限（%）</label>
+                            <input id="strategy-debt-max" type="number" step="1" placeholder="如 70">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="strategy-div-yield-min">股息率下限（%）</label>
+                            <input id="strategy-div-yield-min" type="number" step="0.1" placeholder="如 4">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="strategy-profit-years">近 N 年连续盈利</label>
+                            <input id="strategy-profit-years" type="number" step="1" placeholder="如 3">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="strategy-div-years">近 N 年连续现金分红</label>
+                            <input id="strategy-div-years" type="number" step="1" placeholder="如 3">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="strategy-ma-rule">价格 /MA 条件</label>
+                            <select id="strategy-ma-rule">
+                                <option value="none">不限制</option>
+                                <option value="lt_ma250">收盘价 &lt; MA250</option>
+                                <option value="lte_ma250">收盘价 ≤ MA250</option>
+                                <option value="gt_ma250">收盘价 &gt; MA250</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="strategy-help">
+                        说明：基础筛选条件用于从 <code>fact_daily / dwm_indicators_daily / fact_finance_annual</code>
+                        中筛出候选池，例如 PB&lt;1、总市值&gt;100亿、3年连盈连分红、资产负债率&lt;70% 等。
+                    </div>
+                </div>
+
+                <!-- 评分权重 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>综合评分权重</h2>
+                        <div class="sub">用于在候选池中排序，权重会自动归一化</div>
+                    </div>
+                    <div class="strategy-grid">
+                        <div class="strategy-field">
+                            <label for="strategy-weight-pb">PB 权重</label>
+                            <input id="strategy-weight-pb" type="number" step="1" placeholder="如 20">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="strategy-weight-pe">PE 权重</label>
+                            <input id="strategy-weight-pe" type="number" step="1" placeholder="如 20">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="strategy-weight-roe">ROE 权重</label>
+                            <input id="strategy-weight-roe" type="number" step="1" placeholder="如 25">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="strategy-weight-div">股息率 权重</label>
+                            <input id="strategy-weight-div" type="number" step="1" placeholder="如 20">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="strategy-weight-debt">资产负债率 权重</label>
+                            <input id="strategy-weight-debt" type="number" step="1" placeholder="如 10">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="strategy-weight-mv">市值规模 权重</label>
+                            <input id="strategy-weight-mv" type="number" step="1" placeholder="如 5">
+                        </div>
+                    </div>
+                    <div class="strategy-weight-footer">
+                        权重合计：<span id="strategy-weight-sum">0</span>（建议 100）
+                    </div>
+                    <div class="strategy-help">
+                        建议：PB、PE 权重偏负向（估值越低越好），ROE、股息率偏正向，资产负债率为负向因子，市值规模用于
+                        大盘股偏好（可选）。
+                    </div>
+                </div>
+
+                <!-- 策略执行 & 预览 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>策略保存与执行</h2>
+                        <div class="sub">保存后，当日选股 Job 会按当前策略执行</div>
+                    </div>
+                    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn btn-secondary" id="btn-strategy-save">保存策略</button>
+                            <button class="btn btn-primary" id="btn-strategy-run">执行策略选股</button>
+                            <button class="btn btn-ghost" id="btn-strategy-refresh-preview">刷新预览</button>
+                        </div>
+                        <div style="font-size:12px; color:#6b7280;">
+                            预览数据来源：<code>/api/strategy/preview</code>（建议返回前 20 条）
+                        </div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>股票代码</th>
+                                <th>名称</th>
+                                <th>市值(亿)</th>
+                                <th>PB</th>
+                                <th>PE(TTM)</th>
+                                <th>ROE</th>
+                                <th>股息率</th>
+                                <th>评分</th>
+                            </tr>
+                            </thead>
+                            <tbody id="strategy-preview-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 数据任务中心 -->
+            <section id="page-jobs" style="display:none;">
+                <div class="page-header">
+                    <div class="page-header-left">
+                        <h1>数据任务中心</h1>
+                        <div class="subtitle">
+                            统一管理基础数据 / 行情 / 财报 / 公告 / 指标 / 选股等批处理任务，支持增量更新
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 任务列表 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>任务列表</h2>
+                        <div class="sub">所有任务均建议设计为幂等 + 增量更新，避免覆盖历史数据</div>
+                    </div>
+
+                    <div style="display:flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="font-size:12px; color:#6b7280;">
+                            说明：建议在后端统一实现 <code>/api/jobs/list</code> 返回各任务最近状态信息。
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn btn-secondary" id="btn-jobs-refresh">刷新任务状态</button>
+                            <button class="btn btn-primary" id="btn-jobs-run-all">一键执行 ETL 任务</button>
+                        </div>
+                    </div>
+
+                    <div class="table-wrapper" style="max-height:none;">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>任务编码</th>
+                                <th>任务名称</th>
+                                <th>说明</th>
+                                <th>最近执行时间</th>
+                                <th>耗时</th>
+                                <th>状态</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody id="jobs-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 最近执行日志（可选） -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>最近执行日志</h2>
+                        <div class="sub">若未实现 <code>/api/jobs/logs</code>，本区域自动为空</div>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>时间</th>
+                                <th>任务编码</th>
+                                <th>级别</th>
+                                <th>摘要</th>
+                            </tr>
+                            </thead>
+                            <tbody id="jobs-logs-tbody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 系统设置 -->
+            <section id="page-settings" style="display:none;">
+                <div class="page-header">
+                    <div class="page-header-left">
+                        <h1>系统设置</h1>
+                        <div class="subtitle">环境参数 / 业务阈值 / 调度配置</div>
+                    </div>
+                </div>
+
+                <!-- 环境与数据源 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>环境与数据源</h2>
+                        <div class="sub">展示当前运行环境、数据库、数据源优先级等基础信息</div>
+                    </div>
+                    <div class="table-wrapper" style="max-height:none;">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>配置项</th>
+                                <th>当前值</th>
+                                <th>说明</th>
+                            </tr>
+                            </thead>
+                            <tbody id="settings-env-tbody">
+                            <!-- 由 loadSettingsEnvironment 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 业务阈值配置 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>业务阈值配置</h2>
+                        <div class="sub">全局阈值，将在选股策略、概览统计等模块复用</div>
+                    </div>
+                    <div class="strategy-grid">
+                        <div class="strategy-field">
+                            <label for="setting-bigcap-mv-min">大市值阈值 ≥（亿）</label>
+                            <input id="setting-bigcap-mv-min" type="number" step="1" placeholder="如 100">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="setting-lowpb-max">破净阈值 PB 最大值</label>
+                            <input id="setting-lowpb-max" type="number" step="0.01" placeholder="如 1.0">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="setting-highdiv-min">高股息阈值 股息率 ≥（%）</label>
+                            <input id="setting-highdiv-min" type="number" step="0.1" placeholder="如 4">
+                        </div>
+
+                        <div class="strategy-field">
+                            <label for="setting-screen-topn">当日选股默认 TopN</label>
+                            <input id="setting-screen-topn" type="number" step="1" placeholder="如 50">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="setting-bank-roe-min">银行股 ROE 下限（%）</label>
+                            <input id="setting-bank-roe-min" type="number" step="0.1" placeholder="如 10">
+                        </div>
+                        <div class="strategy-field">
+                            <label for="setting-riskfree-rate">无风险利率（%）</label>
+                            <input id="setting-riskfree-rate" type="number" step="0.1" placeholder="如 3">
+                        </div>
+                    </div>
+                    <div class="strategy-help">
+                        说明：以上参数作为全局口径，例如「大市值≥100亿、破净 PB≤1、高股息≥4%」，后端可在 Gordon 模型、
+                        银行股估值、策略筛选等模块统一引用，避免各处写死。
+                    </div>
+                    <div style="margin-top:8px; display:flex; justify-content: flex-end; gap:8px;">
+                        <button class="btn btn-secondary" id="btn-settings-business-reload">重新加载</button>
+                        <button class="btn btn-primary" id="btn-settings-business-save">保存业务参数</button>
+                    </div>
+                </div>
+
+                <!-- 任务调度配置 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2>任务调度配置</h2>
+                        <div class="sub">控制各 ETL 任务是否启用、每日执行时间（需后端配合定时器）</div>
+                    </div>
+                    <div style="margin-bottom:8px; display:flex; justify-content: space-between; align-items:center;">
+                        <div style="font-size:12px; color:#6b7280;">
+                            建议后端实现 <code>/api/settings/scheduler</code> 持久化配置，并由定时任务读取。
+                        </div>
+                        <div style="display:flex; gap:8px;">
+                            <button class="btn btn-secondary" id="btn-settings-scheduler-reload">重新加载</button>
+                            <button class="btn btn-primary" id="btn-settings-scheduler-save">保存调度配置</button>
+                        </div>
+                    </div>
+                    <div class="table-wrapper" style="max-height:none;">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>任务编码</th>
+                                <th>任务名称</th>
+                                <th>说明</th>
+                                <th>每日执行时间</th>
+                                <th>启用</th>
+                            </tr>
+                            </thead>
+                            <tbody id="settings-scheduler-tbody">
+                            <!-- 由 loadSettingsScheduler 动态填充 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<script>
+    // ===== 左侧菜单单页切换 =====
+    const menuItems = document.querySelectorAll('.menu-item');
+    const pages = {
+        dashboard: document.getElementById('page-dashboard'),
+        stocks: document.getElementById('page-stocks'),
+        strategy: document.getElementById('page-strategy'),
+        jobs: document.getElementById('page-jobs'),
+        settings: document.getElementById('page-settings'),
+    };
+
+    let stocksPageInitialized = false;
+    let strategyPageInitialized = false;
+    let jobsPageInitialized = false;
+    let settingsPageInitialized = false;
+
+    menuItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const page = item.getAttribute('data-page');
+            menuItems.forEach(m => m.classList.remove('active'));
+            item.classList.add('active');
+            Object.keys(pages).forEach(k => {
+                pages[k].style.display = (k === page) ? '' : 'none';
+            });
+
+            if (page === 'stocks') {
+                initStocksPage();
+            } else if (page === 'strategy') {
+                initStrategyPage();
+            } else if (page === 'jobs') {
+                initJobsPage();
+            } else if (page === 'settings') {
+                initSettingsPage();
+            }
+        });
+    });
+
+    // ===== 仪表盘数据拉取：/api/overview =====
+    async function loadOverview() {
+        try {
+            const resp = await fetch('/api/overview');
+            if (!resp.ok) throw new Error('网络异常');
+            const data = await resp.json();
+
+            document.getElementById('kpi-stock-count').textContent = data.stock_count ?? '--';
+            document.getElementById('kpi-kline-count').textContent = data.kline_stock_count ?? '--';
+            document.getElementById('kpi-screen-count').textContent = data.screen_count ?? '--';
+            document.getElementById('kpi-latest-trade-date').textContent = data.latest_trade_date ?? '--';
+
+            const jobTb = document.getElementById('job-status-tbody');
+            jobTb.innerHTML = '';
+            (data.jobs || []).forEach(job => {
+                const tr = document.createElement('tr');
+                const status = (job.status || 'UNKNOWN').toUpperCase();
+                const statusDotClass = status === 'OK' ? 'ok'
+                    : (status === 'WARN' ? 'warn' : 'err');
+                const statusTagClass = status === 'OK' ? ''
+                    : (status === 'WARN' ? 'tag-warn' : 'tag-danger');
+                tr.innerHTML = `
+                    <td>${job.name}</td>
+                    <td>${job.last_run_time || '--'}</td>
+                    <td>${job.duration || '--'}</td>
+                    <td>
+                        <span class="status-dot ${statusDotClass}"></span>
+                        <span class="tag ${statusTagClass}">${status}</span>
+                    </td>
+                `;
+                jobTb.appendChild(tr);
+            });
+
+            const topTb = document.getElementById('screen-top-tbody');
+            topTb.innerHTML = '';
+            (data.screen_top || []).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.ts_code}</td>
+                    <td>${row.name}</td>
+                    <td>${row.mv_100m ?? '--'}</td>
+                    <td>${row.pb ?? '--'}</td>
+                    <td>${row.pe_ttm ?? '--'}</td>
+                    <td>${row.roe ?? '--'}</td>
+                    <td>${row.div_yield ?? '--'}</td>
+                    <td>${row.score ?? '--'}</td>
+                    <td><span class="tag">${row.flag || '持有'}</span></td>
+                `;
+                tr.addEventListener('click', () => {
+                    window.open('/stock/' + row.ts_code, '_blank');
+                });
+                topTb.appendChild(tr);
+            });
+
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    document.getElementById('btn-refresh-overview')
+        .addEventListener('click', loadOverview);
+
+    document.getElementById('btn-run-screener')
+        .addEventListener('click', async () => {
+            const btn = document.getElementById('btn-run-screener');
+            btn.disabled = true;
+            btn.textContent = '执行中...';
+            try {
+                const resp = await fetch('/api/jobs/run_screener', {method: 'POST'});
+                const data = await resp.json();
+                if (data.ok) {
+                    await loadOverview();
+                } else {
+                    alert('选股执行失败：' + (data.error || '未知错误'));
+                }
+            } catch (e) {
+                console.error(e);
+                alert('网络异常');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '执行当日选股';
+            }
+        });
+
+    // ===== 全量股票列表：前端筛选 + 分页 =====
+    let allStocks = [];
+    let filteredStocks = [];
+    let stocksCurrentPage = 1;
+    const STOCKS_PAGE_SIZE = 50;
+
+    function getNumeric(v) {
+        const n = parseFloat(v);
+        return Number.isNaN(n) ? null : n;
+    }
+
+    function pickField(row, keys, defaultValue = null) {
+        for (const k of keys) {
+            if (row && Object.prototype.hasOwnProperty.call(row, k) && row[k] != null) {
+                return row[k];
+            }
+        }
+        return defaultValue;
+    }
+
+    function getFieldNumber(row, keys) {
+        const v = pickField(row, keys, null);
+        return getNumeric(v);
+    }
+
+    function buildIndustryOptions() {
+        const select = document.getElementById('stocks-filter-industry');
+        if (!select || !allStocks.length) return;
+
+        const set = new Set();
+        allStocks.forEach(row => {
+            const ind = pickField(row, ['industry', 'industry_name', 'sw_industry'], null);
+            if (ind) set.add(ind);
+        });
+
+        const current = select.value;
+        select.innerHTML = '<option value="">全部行业</option>';
+        Array.from(set).sort().forEach(ind => {
+            const opt = document.createElement('option');
+            opt.value = ind;
+            opt.textContent = ind;
+            select.appendChild(opt);
+        });
+        if (current && set.has(current)) {
+            select.value = current;
+        }
+    }
+
+    async function fetchStocks() {
+        try {
+            const btn = document.getElementById('stocks-btn-refresh');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '加载中...';
+            }
+
+            const resp = await fetch('/api/stocks');
+            if (!resp.ok) throw new Error('网络异常');
+            const data = await resp.json();
+
+            let items = [];
+            if (Array.isArray(data)) {
+                items = data;
+            } else if (Array.isArray(data.items)) {
+                items = data.items;
+            } else if (Array.isArray(data.data)) {
+                items = data.data;
+            } else if (data.rows && Array.isArray(data.rows)) {
+                items = data.rows;
+            }
+
+            allStocks = items || [];
+            filteredStocks = allStocks.slice();
+            stocksCurrentPage = 1;
+
+            buildIndustryOptions();
+            applyStocksFilter(true);
+
+        } catch (e) {
+            console.error(e);
+            alert('加载股票列表失败');
+        } finally {
+            const btn = document.getElementById('stocks-btn-refresh');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '刷新数据';
+            }
+        }
+    }
+
+    function collectStockFilters() {
+        const kwInput = document.getElementById('stocks-filter-keyword');
+        const industrySelect = document.getElementById('stocks-filter-industry');
+        const mvMinInput = document.getElementById('stocks-filter-mv-min');
+        const mvMaxInput = document.getElementById('stocks-filter-mv-max');
+        const pbMaxInput = document.getElementById('stocks-filter-pb-max');
+        const peMaxInput = document.getElementById('stocks-filter-pe-max');
+        const sortSelect = document.getElementById('stocks-sort-select');
+
+        return {
+            keyword: kwInput?.value.trim() || '',
+            industry: industrySelect?.value || '',
+            mvMin: getNumeric(mvMinInput?.value),
+            mvMax: getNumeric(mvMaxInput?.value),
+            pbMax: getNumeric(pbMaxInput?.value),
+            peMax: getNumeric(peMaxInput?.value),
+            sort: sortSelect?.value || 'score_desc',
+        };
+    }
+
+    function applyStocksFilter(skipResetPage = false) {
+        const filters = collectStockFilters();
+
+        filteredStocks = allStocks.filter(row => {
+            const code = String(pickField(row, ['ts_code', 'code'], '') || '');
+            const name = String(pickField(row, ['name', 'sec_name'], '') || '');
+            const industry = String(pickField(row, ['industry', 'industry_name', 'sw_industry'], '') || '');
+
+            if (filters.keyword) {
+                const kw = filters.keyword;
+                if (!code.includes(kw) && !name.includes(kw)) return false;
+            }
+
+            if (filters.industry && industry !== filters.industry) {
+                return false;
+            }
+
+            const mv = getFieldNumber(row, ['mv_100m', 'total_mv', 'market_cap']);
+            if (filters.mvMin != null && mv != null && mv < filters.mvMin) return false;
+            if (filters.mvMax != null && mv != null && mv > filters.mvMax) return false;
+
+            const pb = getFieldNumber(row, ['pb']);
+            if (filters.pbMax != null && pb != null && pb > filters.pbMax) return false;
+
+            const pe = getFieldNumber(row, ['pe_ttm', 'pe']);
+            if (filters.peMax != null && pe != null && pe > filters.peMax) return false;
+
+            return true;
+        });
+
+        if (!skipResetPage) {
+            stocksCurrentPage = 1;
+        }
+
+        renderStocksTable();
+    }
+
+    function getSortValue(row, sortKey) {
+        switch (sortKey) {
+            case 'mv':
+                return getFieldNumber(row, ['mv_100m', 'total_mv', 'market_cap']);
+            case 'pb':
+                return getFieldNumber(row, ['pb']);
+            case 'pe':
+                return getFieldNumber(row, ['pe_ttm', 'pe']);
+            case 'roe':
+                return getFieldNumber(row, ['roe']);
+            case 'div':
+                return getFieldNumber(row, ['div_yield', 'dividend_yield']);
+            case 'score':
+            default:
+                return getFieldNumber(row, ['score', 'total_score']);
+        }
+    }
+
+    function renderStocksTable() {
+        const tbody = document.getElementById('stocks-tbody');
+        const summary = document.getElementById('stocks-summary');
+        const pageInfo = document.getElementById('stocks-page-info');
+        if (!tbody) return;
+
+        const filters = collectStockFilters();
+        let sortKey = 'score';
+        let sortDir = 'desc';
+
+        if (filters.sort) {
+            if (filters.sort.startsWith('mv')) sortKey = 'mv';
+            else if (filters.sort.startsWith('pb')) sortKey = 'pb';
+            else if (filters.sort.startsWith('pe')) sortKey = 'pe';
+            else if (filters.sort.startsWith('div')) sortKey = 'div';
+            else if (filters.sort.startsWith('roe')) sortKey = 'roe';
+            else sortKey = 'score';
+
+            sortDir = filters.sort.endsWith('asc') ? 'asc' : 'desc';
+        }
+
+        const sorted = filteredStocks.slice().sort((a, b) => {
+            const va = getSortValue(a, sortKey);
+            const vb = getSortValue(b, sortKey);
+
+            if (va == null && vb == null) return 0;
+            if (va == null) return 1;
+            if (vb == null) return -1;
+
+            return sortDir === 'asc' ? va - vb : vb - va;
+        });
+
+        const total = sorted.length;
+        const pageCount = Math.max(1, Math.ceil(total / STOCKS_PAGE_SIZE));
+        if (stocksCurrentPage > pageCount) stocksCurrentPage = pageCount;
+
+        const startIdx = (stocksCurrentPage - 1) * STOCKS_PAGE_SIZE;
+        const endIdx = startIdx + STOCKS_PAGE_SIZE;
+        const pageItems = sorted.slice(startIdx, endIdx);
+
+        tbody.innerHTML = '';
+        pageItems.forEach(row => {
+            const code = pickField(row, ['ts_code', 'code'], '--');
+            const name = pickField(row, ['name', 'sec_name'], '--');
+            const industry = pickField(row, ['industry', 'industry_name', 'sw_industry'], '--');
+
+            let mv = getFieldNumber(row, ['mv_100m', 'total_mv', 'market_cap']);
+            let mvDisplay = mv != null ? mv.toFixed(0) : '--';
+
+            const pb = getFieldNumber(row, ['pb']);
+            const pe = getFieldNumber(row, ['pe_ttm', 'pe']);
+            const roe = getFieldNumber(row, ['roe']);
+            const divYield = getFieldNumber(row, ['div_yield', 'dividend_yield']);
+            const score = getFieldNumber(row, ['score', 'total_score']);
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${code}</td>
+                <td>${name}</td>
+                <td>${industry || '--'}</td>
+                <td>${mvDisplay}</td>
+                <td>${pb != null ? pb.toFixed(2) : '--'}</td>
+                <td>${pe != null ? pe.toFixed(1) : '--'}</td>
+                <td>${roe != null ? (roe * 100).toFixed(1) + '%' : '--'}</td>
+                <td>${divYield != null ? divYield.toFixed(2) + '%' : '--'}</td>
+                <td>${score != null ? score.toFixed(2) : '--'}</td>
+            `;
+            tr.addEventListener('click', () => {
+                if (code && code !== '--') {
+                    window.open('/stock/' + code, '_blank');
+                }
+            });
+            tbody.appendChild(tr);
+        });
+
+        if (summary) {
+            summary.textContent = `共 ${total} 只股票（已加载 ${allStocks.length} 条），每页 ${STOCKS_PAGE_SIZE} 条`;
+        }
+        if (pageInfo) {
+            pageInfo.textContent = `第 ${stocksCurrentPage} / ${pageCount} 页`;
+        }
+    }
+
+    function changeStocksPage(delta) {
+        const total = filteredStocks.length;
+        const pageCount = Math.max(1, Math.ceil(total / STOCKS_PAGE_SIZE));
+        stocksCurrentPage = Math.min(pageCount, Math.max(1, stocksCurrentPage + delta));
+        renderStocksTable();
+    }
+
+    function resetStocksFilters() {
+        const inputs = document.querySelectorAll('[data-filter-input="stocks"]');
+        inputs.forEach(el => {
+            if (el.tagName === 'INPUT') {
+                el.value = '';
+            } else if (el.tagName === 'SELECT') {
+                el.value = '';
+            }
+        });
+        const sortSelect = document.getElementById('stocks-sort-select');
+        if (sortSelect) sortSelect.value = 'score_desc';
+        applyStocksFilter();
+    }
+
+    function initStocksPage() {
+        if (!stocksPageInitialized) {
+            const filterInputs = document.querySelectorAll('[data-filter-input="stocks"]');
+            filterInputs.forEach(el => {
+                el.addEventListener('input', () => applyStocksFilter());
+            });
+
+            const sortSelect = document.getElementById('stocks-sort-select');
+            if (sortSelect) {
+                sortSelect.addEventListener('change', () => applyStocksFilter());
+            }
+
+            const btnReset = document.getElementById('stocks-btn-reset');
+            if (btnReset) {
+                btnReset.addEventListener('click', resetStocksFilters);
+            }
+
+            const btnRefresh = document.getElementById('stocks-btn-refresh');
+            if (btnRefresh) {
+                btnRefresh.addEventListener('click', () => {
+                    fetchStocks();
+                });
+            }
+
+            const prevBtn = document.getElementById('stocks-prev-page');
+            const nextBtn = document.getElementById('stocks-next-page');
+            if (prevBtn) prevBtn.addEventListener('click', () => changeStocksPage(-1));
+            if (nextBtn) nextBtn.addEventListener('click', () => changeStocksPage(1));
+
+            stocksPageInitialized = true;
+            fetchStocks();
+        }
+    }
+
+    // ===== 选股策略配置 =====
+    function getInputNumber(id) {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        const n = parseFloat(el.value);
+        return Number.isNaN(n) ? null : n;
+    }
+
+    function setInputValue(id, v) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (v === null || v === undefined) {
+            el.value = '';
+        } else {
+            el.value = String(v);
+        }
+    }
+
+    function updateStrategyWeightSum() {
+        const ids = [
+            'strategy-weight-pb',
+            'strategy-weight-pe',
+            'strategy-weight-roe',
+            'strategy-weight-div',
+            'strategy-weight-debt',
+            'strategy-weight-mv'
+        ];
+        let sum = 0;
+        ids.forEach(id => {
+            const v = getInputNumber(id);
+            if (v != null) sum += v;
+        });
+        const label = document.getElementById('strategy-weight-sum');
+        if (label) label.textContent = sum.toFixed(0);
+    }
+
+    function fillStrategyForm(profile) {
+        const filter = profile.filter || {};
+        const weight = profile.weight || {};
+        const name = profile.name || '默认策略';
+
+        document.getElementById('strategy-current-name').textContent = '当前策略：' + name;
+
+        setInputValue('strategy-pb-max', filter.pb_max != null ? filter.pb_max : 1.0);
+        setInputValue('strategy-mv-min', filter.mv_min_100m != null ? filter.mv_min_100m : 100);
+        setInputValue('strategy-roe-min', filter.roe_min_pct != null ? filter.roe_min_pct : 10);
+        setInputValue('strategy-debt-max', filter.debt_max_pct != null ? filter.debt_max_pct : 70);
+        setInputValue('strategy-div-yield-min', filter.div_yield_min_pct != null ? filter.div_yield_min_pct : 4);
+        setInputValue('strategy-profit-years', filter.profit_years != null ? filter.profit_years : 3);
+        setInputValue('strategy-div-years', filter.div_years != null ? filter.div_years : 3);
+
+        const maRule = document.getElementById('strategy-ma-rule');
+        if (maRule) {
+            maRule.value = filter.ma_rule || 'lt_ma250';
+        }
+
+        setInputValue('strategy-weight-pb', (weight.pb != null ? weight.pb * 100 : 20));
+        setInputValue('strategy-weight-pe', (weight.pe != null ? weight.pe * 100 : 20));
+        setInputValue('strategy-weight-roe', (weight.roe != null ? weight.roe * 100 : 25));
+        setInputValue('strategy-weight-div', (weight.div != null ? weight.div * 100 : 20));
+        setInputValue('strategy-weight-debt', (weight.debt != null ? weight.debt * 100 : 10));
+        setInputValue('strategy-weight-mv', (weight.mv != null ? weight.mv * 100 : 5));
+
+        updateStrategyWeightSum();
+    }
+
+    function collectStrategyFormData() {
+        const pb_max = getInputNumber('strategy-pb-max');
+        const mv_min_100m = getInputNumber('strategy-mv-min');
+        const roe_min_pct = getInputNumber('strategy-roe-min');
+        const debt_max_pct = getInputNumber('strategy-debt-max');
+        const div_yield_min_pct = getInputNumber('strategy-div-yield-min');
+        const profit_years = getInputNumber('strategy-profit-years');
+        const div_years = getInputNumber('strategy-div-years');
+        const ma_rule_el = document.getElementById('strategy-ma-rule');
+
+        const pb_w = getInputNumber('strategy-weight-pb') || 0;
+        const pe_w = getInputNumber('strategy-weight-pe') || 0;
+        const roe_w = getInputNumber('strategy-weight-roe') || 0;
+        const div_w = getInputNumber('strategy-weight-div') || 0;
+        const debt_w = getInputNumber('strategy-weight-debt') || 0;
+        const mv_w = getInputNumber('strategy-weight-mv') || 0;
+
+        const sum = pb_w + pe_w + roe_w + div_w + debt_w + mv_w || 1;
+
+        return {
+            filter: {
+                pb_max,
+                mv_min_100m,
+                roe_min_pct,
+                debt_max_pct,
+                div_yield_min_pct,
+                profit_years,
+                div_years,
+                ma_rule: ma_rule_el ? ma_rule_el.value : 'lt_ma250',
+            },
+            weight: {
+                pb: pb_w / sum,
+                pe: pe_w / sum,
+                roe: roe_w / sum,
+                div: div_w / sum,
+                debt: debt_w / sum,
+                mv: mv_w / sum,
+            }
+        };
+    }
+
+    async function loadStrategyProfile() {
+        try {
+            const resp = await fetch('/api/strategy/profile');
+            if (!resp.ok) {
+                fillStrategyForm({
+                    name: '默认策略',
+                    filter: {},
+                    weight: {}
+                });
+                return;
+            }
+            const data = await resp.json();
+            fillStrategyForm(data);
+        } catch (e) {
+            console.error(e);
+            fillStrategyForm({
+                name: '默认策略',
+                filter: {},
+                weight: {}
+            });
+        }
+    }
+
+    async function saveStrategyProfile() {
+        const payload = collectStrategyFormData();
+        try {
+            const btn = document.getElementById('btn-strategy-save');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '保存中...';
+            }
+            const resp = await fetch('/api/strategy/profile', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await resp.json();
+            if (!resp.ok || data.ok === false) {
+                alert('保存失败：' + (data.error || '服务异常'));
+                return;
+            }
+            alert('策略已保存');
+            await loadStrategyProfile();
+        } catch (e) {
+            console.error(e);
+            alert('保存失败：网络异常');
+        } finally {
+            const btn = document.getElementById('btn-strategy-save');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '保存策略';
+            }
+        }
+    }
+
+    async function loadStrategyPreview() {
+        try {
+            const resp = await fetch('/api/strategy/preview');
+            if (!resp.ok) throw new Error('网络异常');
+            const data = await resp.json();
+
+            let items = [];
+            if (Array.isArray(data)) {
+                items = data;
+            } else if (Array.isArray(data.items)) {
+                items = data.items;
+            } else if (Array.isArray(data.data)) {
+                items = data.data;
+            } else if (data.rows && Array.isArray(data.rows)) {
+                items = data.rows;
+            }
+
+            const tbody = document.getElementById('strategy-preview-tbody');
+            tbody.innerHTML = '';
+            (items || []).forEach(row => {
+                const code = pickField(row, ['ts_code', 'code'], '--');
+                const name = pickField(row, ['name', 'sec_name'], '--');
+                let mv = getFieldNumber(row, ['mv_100m', 'total_mv', 'market_cap']);
+                let mvDisplay = mv != null ? mv.toFixed(0) : '--';
+                const pb = getFieldNumber(row, ['pb']);
+                const pe = getFieldNumber(row, ['pe_ttm', 'pe']);
+                const roe = getFieldNumber(row, ['roe']);
+                const divYield = getFieldNumber(row, ['div_yield', 'dividend_yield']);
+                const score = getFieldNumber(row, ['score', 'total_score']);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${code}</td>
+                    <td>${name}</td>
+                    <td>${mvDisplay}</td>
+                    <td>${pb != null ? pb.toFixed(2) : '--'}</td>
+                    <td>${pe != null ? pe.toFixed(1) : '--'}</td>
+                    <td>${roe != null ? (roe * 100).toFixed(1) + '%' : '--'}</td>
+                    <td>${divYield != null ? divYield.toFixed(2) + '%' : '--'}</td>
+                    <td>${score != null ? score.toFixed(2) : '--'}</td>
+                `;
+                tr.addEventListener('click', () => {
+                    if (code && code !== '--') {
+                        window.open('/stock/' + code, '_blank');
+                    }
+                });
+                tbody.appendChild(tr);
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+
+    async function runStrategyJob() {
+        const btn = document.getElementById('btn-strategy-run');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '执行中...';
+        }
+        try {
+            const resp = await fetch('/api/jobs/run_screener', {method: 'POST'});
+            const data = await resp.json();
+            if (!resp.ok || data.ok === false) {
+                alert('执行失败：' + (data.error || '服务异常'));
+                return;
+            }
+            alert('执行完成，已按当前策略生成当日选股结果');
+            await loadStrategyPreview();
+        } catch (e) {
+            console.error(e);
+            alert('执行失败：网络异常');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '执行策略选股';
+            }
+        }
+    }
+
+    function initStrategyPage() {
+        if (!strategyPageInitialized) {
+            const weightInputs = [
+                'strategy-weight-pb',
+                'strategy-weight-pe',
+                'strategy-weight-roe',
+                'strategy-weight-div',
+                'strategy-weight-debt',
+                'strategy-weight-mv'
+            ];
+            weightInputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', updateStrategyWeightSum);
+                }
+            });
+
+            const btnSave = document.getElementById('btn-strategy-save');
+            if (btnSave) btnSave.addEventListener('click', saveStrategyProfile);
+
+            const btnRun = document.getElementById('btn-strategy-run');
+            if (btnRun) btnRun.addEventListener('click', runStrategyJob);
+
+            const btnPreview = document.getElementById('btn-strategy-refresh-preview');
+            if (btnPreview) btnPreview.addEventListener('click', loadStrategyPreview);
+
+            strategyPageInitialized = true;
+            loadStrategyProfile();
+            loadStrategyPreview();
+        }
+    }
+
+    // ===== 数据任务中心 =====
+    const jobsConfig = [
+        {
+            code: 'fetch_basics',
+            name: '拉取股票基础信息',
+            description: '增量维护 dim_security / 股票基本资料',
+            api: '/api/jobs/fetch_basics'
+        },
+        {
+            code: 'fetch_kline',
+            name: '拉取日线行情',
+            description: '增量维护 fact_daily / dwm_indicators_daily',
+            api: '/api/jobs/fetch_kline'
+        },
+        {
+            code: 'fetch_financials',
+            name: '拉取财报数据',
+            description: '增量维护财务报表 fact_finance_*',
+            api: '/api/jobs/fetch_financials'
+        },
+        {
+            code: 'fetch_announcements',
+            name: '拉取公告数据',
+            description: '增量维护公开公告 fact_announcements',
+            api: '/api/jobs/fetch_announcements'
+        },
+        {
+            code: 'calc_indicators',
+            name: '计算技术 & 估值指标',
+            description: '基于行情 + 财报，计算 MA / PE / PB / 股息率等',
+            api: '/api/jobs/calc_indicators'
+        },
+        {
+            code: 'run_screener',
+            name: '执行当日选股',
+            description: '根据当前策略，生成 dm_screen_pick 选股结果',
+            api: '/api/jobs/run_screener'
+        }
+    ];
+
+    let jobsStatusMap = {};
+
+    async function loadJobsStatus() {
+        try {
+            const btn = document.getElementById('btn-jobs-refresh');
+            if (btn) {
+                btn.disabled = true;
+                btn.textContent = '刷新中...';
+            }
+
+            const resp = await fetch('/api/jobs/list');
+            if (!resp.ok) throw new Error('jobs list not ready');
+            const data = await resp.json();
+
+            let items = [];
+            if (Array.isArray(data)) {
+                items = data;
+            } else if (Array.isArray(data.items)) {
+                items = data.items;
+            } else if (Array.isArray(data.data)) {
+                items = data.data;
+            } else if (data.rows && Array.isArray(data.rows)) {
+                items = data.rows;
+            }
+
+            jobsStatusMap = {};
+            (items || []).forEach(j => {
+                const code = j.code || j.job_code || j.name;
+                if (code) {
+                    jobsStatusMap[code] = j;
+                }
+            });
+
+        } catch (e) {
+            console.warn('loadJobsStatus fallback, use empty status', e);
+            jobsStatusMap = {};
+        } finally {
+            const btn = document.getElementById('btn-jobs-refresh');
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '刷新任务状态';
+            }
+            renderJobsTable();
+        }
+    }
+
+    function renderJobsTable() {
+        const tbody = document.getElementById('jobs-tbody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        jobsConfig.forEach(job => {
+            const st = jobsStatusMap[job.code] || {};
+            const lastRunTime = st.last_run_time || st.lastRunTime || st.run_time || '--';
+            const duration = st.duration || st.last_duration || st.elapsed || '--';
+            const status = (st.status || st.last_status || st.state || 'UNKNOWN').toUpperCase();
+            const statusDotClass = status === 'OK'
+                ? 'ok'
+                : (status === 'WARN' ? 'warn' : (status === 'UNKNOWN' ? 'warn' : 'err'));
+            const statusTagClass = status === 'OK'
+                ? ''
+                : (status === 'WARN' || status === 'UNKNOWN' ? 'tag-warn' : 'tag-danger');
+            const rows = st.rows || st.rows_affected || st.rowcount || '';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${job.code}</td>
+                <td>${job.name}</td>
+                <td>${job.description}</td>
+                <td>${lastRunTime}</td>
+                <td>${duration}${rows ? ' / ' + rows + ' 行' : ''}</td>
+                <td>
+                    <span class="status-dot ${statusDotClass}"></span>
+                    <span class="tag ${statusTagClass}">${status}</span>
+                </td>
+                <td>
+                    <button class="btn btn-secondary btn-job-run" data-job-code="${job.code}">立即执行</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        const runButtons = document.querySelectorAll('.btn-job-run');
+        runButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const code = btn.getAttribute('data-job-code');
+                runJob(code, btn);
+            });
+        });
+    }
+
+    async function runJob(code, btnEl) {
+        const job = jobsConfig.find(j => j.code === code);
+        if (!job) return;
+
+        const btn = btnEl;
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '执行中...';
+        }
+
+        try {
+            const resp = await fetch(job.api, {method: 'POST'});
+            const data = await resp.json();
+            if (!resp.ok || data.ok === false) {
+                alert(`${job.name} 执行失败：` + (data.error || '服务异常'));
+            } else {
+                alert(`${job.name} 执行完成`);
+            }
+        } catch (e) {
+            console.error(e);
+            alert(`${job.name} 执行失败：网络异常`);
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '立即执行';
+            }
+            loadJobsStatus();
+        }
+    }
+
+    async function runAllJobs() {
+        const btn = document.getElementById('btn-jobs-run-all');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '执行中...';
+        }
+
+        const codes = ['fetch_basics', 'fetch_kline', 'fetch_financials', 'fetch_announcements', 'calc_indicators'];
+        for (const code of codes) {
+            const job = jobsConfig.find(j => j.code === code);
+            if (!job) continue;
+            try {
+                const resp = await fetch(job.api, {method: 'POST'});
+                const data = await resp.json();
+                if (!resp.ok || data.ok === false) {
+                    console.warn('批量执行失败', code, data.error);
+                }
+            } catch (e) {
+                console.warn('批量执行异常', code, e);
+            }
+        }
+
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '一键执行 ETL 任务';
+        }
+        loadJobsStatus();
+    }
+
+    async function loadJobsLogs() {
+        try {
+            const resp = await fetch('/api/jobs/logs');
+            if (!resp.ok) return;
+            const data = await resp.json();
+
+            let items = [];
+            if (Array.isArray(data)) {
+                items = data;
+            } else if (Array.isArray(data.items)) {
+                items = data.items;
+            } else if (Array.isArray(data.data)) {
+                items = data.data;
+            } else if (data.rows && Array.isArray(data.rows)) {
+                items = data.rows;
+            }
+
+            const tbody = document.getElementById('jobs-logs-tbody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            (items || []).forEach(log => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${log.time || log.created_at || log.log_time || '--'}</td>
+                    <td>${log.job_code || log.job || log.name || '--'}</td>
+                    <td>${(log.level || 'INFO').toUpperCase()}</td>
+                    <td>${log.message || log.msg || '--'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        } catch (e) {
+            console.warn('loadJobsLogs skipped', e);
+        }
+    }
+
+    function initJobsPage() {
+        if (!jobsPageInitialized) {
+            const btnRefresh = document.getElementById('btn-jobs-refresh');
+            if (btnRefresh) {
+                btnRefresh.addEventListener('click', () => {
+                    loadJobsStatus();
+                    loadJobsLogs();
+                });
+            }
+
+            const btnRunAll = document.getElementById('btn-jobs-run-all');
+            if (btnRunAll) {
+                btnRunAll.addEventListener('click', runAllJobs);
+            }
+
+            jobsPageInitialized = true;
+            loadJobsStatus();
+            loadJobsLogs();
+        }
+    }
+
+    // ===== 系统设置 =====
+    async function loadSettingsEnvironment() {
+        const tbody = document.getElementById('settings-env-tbody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        try {
+            const resp = await fetch('/api/settings/env');
+            if (!resp.ok) throw new Error('no env api');
+            const data = await resp.json();
+
+            let items = [];
+            if (Array.isArray(data)) {
+                items = data;
+            } else if (Array.isArray(data.items)) {
+                items = data.items;
+            } else if (Array.isArray(data.data)) {
+                items = data.data;
+            } else if (data.rows && Array.isArray(data.rows)) {
+                items = data.rows;
+            } else if (data.env) {
+                const envObj = data.env;
+                items = Object.keys(envObj).map(k => ({
+                    key: k,
+                    value: envObj[k],
+                    desc: ''
+                }));
+            }
+
+            (items || []).forEach(item => {
+                const key = item.key || item.name || item.code || '--';
+                const val = item.value ?? item.val ?? item.current ?? '--';
+                const desc = item.desc || item.description || '';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${key}</td>
+                    <td>${val}</td>
+                    <td>${desc}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            const envLabel = document.getElementById('env-label');
+            if (envLabel && data.env_name) {
+                envLabel.textContent = '环境：' + data.env_name;
+            }
+
+        } catch (e) {
+            console.warn('loadSettingsEnvironment fallback', e);
+            const defaults = [
+                { key: '运行环境', value: 'DEV', desc: '本地开发环境' },
+                { key: '数据库', value: 'SQL Server / stock', desc: '存储 dim_security / fact_daily 等表' },
+                { key: '数据源优先级', value: 'Choice → BaoStock', desc: '优先使用东财 Choice，失败时 BaoStock 兜底' }
+            ];
+            defaults.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.key}</td>
+                    <td>${item.value}</td>
+                    <td>${item.desc}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    }
+
+    async function loadSettingsBusiness() {
+        try {
+            const resp = await fetch('/api/settings/business');
+            if (!resp.ok) throw new Error('no business api');
+            const data = await resp.json();
+
+            const biz = data.settings || data || {};
+
+            setInputValue('setting-bigcap-mv-min', biz.bigcap_mv_min_100m != null ? biz.bigcap_mv_min_100m : 100);
+            setInputValue('setting-lowpb-max', biz.low_pb_max != null ? biz.low_pb_max : 1.0);
+            setInputValue('setting-highdiv-min', biz.high_div_yield_min_pct != null ? biz.high_div_yield_min_pct : 4.0);
+
+            setInputValue('setting-screen-topn', biz.screen_topn != null ? biz.screen_topn : 50);
+            setInputValue('setting-bank-roe-min', biz.bank_roe_min_pct != null ? biz.bank_roe_min_pct : 10.0);
+            setInputValue('setting-riskfree-rate', biz.risk_free_rate_pct != null ? biz.risk_free_rate_pct : 3.0);
+        } catch (e) {
+            console.warn('loadSettingsBusiness fallback', e);
+            setInputValue('setting-bigcap-mv-min', 100);
+            setInputValue('setting-lowpb-max', 1.0);
+            setInputValue('setting-highdiv-min', 4.0);
+            setInputValue('setting-screen-topn', 50);
+            setInputValue('setting-bank-roe-min', 10.0);
+            setInputValue('setting-riskfree-rate', 3.0);
+        }
+    }
+
+    async function saveSettingsBusiness() {
+        const btn = document.getElementById('btn-settings-business-save');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '保存中...';
+        }
+
+        const payload = {
+            bigcap_mv_min_100m: getInputNumber('setting-bigcap-mv-min'),
+            low_pb_max: getInputNumber('setting-lowpb-max'),
+            high_div_yield_min_pct: getInputNumber('setting-highdiv-min'),
+            screen_topn: getInputNumber('setting-screen-topn'),
+            bank_roe_min_pct: getInputNumber('setting-bank-roe-min'),
+            risk_free_rate_pct: getInputNumber('setting-riskfree-rate')
+        };
+
+        try {
+            const resp = await fetch('/api/settings/business', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await resp.json();
+            if (!resp.ok || data.ok === false) {
+                alert('保存失败：' + (data.error || '服务异常'));
+                return;
+            }
+            alert('业务参数已保存');
+        } catch (e) {
+            console.error(e);
+            alert('保存失败：网络异常');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '保存业务参数';
+            }
+        }
+    }
+
+    async function loadSettingsScheduler() {
+        const tbody = document.getElementById('settings-scheduler-tbody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+        let schedulerMap = {};
+
+        try {
+            const resp = await fetch('/api/settings/scheduler');
+            if (resp.ok) {
+                const data = await resp.json();
+                let items = [];
+                if (Array.isArray(data)) {
+                    items = data;
+                } else if (Array.isArray(data.items)) {
+                    items = data.items;
+                } else if (Array.isArray(data.data)) {
+                    items = data.data;
+                } else if (data.rows && Array.isArray(data.rows)) {
+                    items = data.rows;
+                }
+                (items || []).forEach(it => {
+                    const code = it.code || it.job_code || it.name;
+                    if (!code) return;
+                    schedulerMap[code] = it;
+                });
+            }
+        } catch (e) {
+            console.warn('loadSettingsScheduler no api, use defaults', e);
+        }
+
+        jobsConfig.forEach(job => {
+            const conf = schedulerMap[job.code] || {};
+            const enabled = conf.enabled != null ? !!conf.enabled : (job.code !== 'run_screener');
+            const time = conf.time || conf.run_time || '02:00';
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${job.code}</td>
+                <td>${job.name}</td>
+                <td>${job.description}</td>
+                <td>
+                    <input type="time"
+                           class="settings-job-time"
+                           data-job-code="${job.code}"
+                           value="${time}">
+                </td>
+                <td>
+                    <input type="checkbox"
+                           class="settings-job-enabled"
+                           data-job-code="${job.code}"
+                           ${enabled ? 'checked' : ''}>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    async function saveSettingsScheduler() {
+        const btn = document.getElementById('btn-settings-scheduler-save');
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '保存中...';
+        }
+
+        const payload = { jobs: [] };
+        jobsConfig.forEach(job => {
+            const timeInput = document.querySelector(`.settings-job-time[data-job-code="${job.code}"]`);
+            const enabledInput = document.querySelector(`.settings-job-enabled[data-job-code="${job.code}"]`);
+            if (!timeInput || !enabledInput) return;
+
+            payload.jobs.push({
+                code: job.code,
+                enabled: enabledInput.checked,
+                time: timeInput.value || '02:00'
+            });
+        });
+
+        try {
+            const resp = await fetch('/api/settings/scheduler', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            const data = await resp.json();
+            if (!resp.ok || data.ok === false) {
+                alert('保存失败：' + (data.error || '服务异常'));
+                return;
+            }
+            alert('调度配置已保存');
+        } catch (e) {
+            console.error(e);
+            alert('保存失败：网络异常');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = '保存调度配置';
+            }
+        }
+    }
+
+    function initSettingsPage() {
+        if (settingsPageInitialized) return;
+
+        const btnBizSave = document.getElementById('btn-settings-business-save');
+        if (btnBizSave) {
+            btnBizSave.addEventListener('click', saveSettingsBusiness);
+        }
+        const btnBizReload = document.getElementById('btn-settings-business-reload');
+        if (btnBizReload) {
+            btnBizReload.addEventListener('click', loadSettingsBusiness);
+        }
+
+        const btnSchedSave = document.getElementById('btn-settings-scheduler-save');
+        if (btnSchedSave) {
+            btnSchedSave.addEventListener('click', saveSettingsScheduler);
+        }
+        const btnSchedReload = document.getElementById('btn-settings-scheduler-reload');
+        if (btnSchedReload) {
+            btnSchedReload.addEventListener('click', loadSettingsScheduler);
+        }
+
+        loadSettingsEnvironment();
+        loadSettingsBusiness();
+        loadSettingsScheduler();
+
+        settingsPageInitialized = true;
+    }
+
+    // ===== 页面初始化：默认进首页仪表盘 =====
+    loadOverview();
+</script>
+</body>
+</html>
