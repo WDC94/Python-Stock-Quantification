@@ -1183,7 +1183,7 @@
             btn.disabled = true;
             btn.textContent = '执行中...';
             try {
-                const resp = await fetch('/api/jobs/run_screener', {method: 'POST'});
+                const resp = await fetch('/api/run_screener', {method: 'POST'});
                 const data = await resp.json();
                 if (data.ok) {
                     await loadOverview();
@@ -1588,6 +1588,9 @@
         const sum = pb_w + pe_w + roe_w + div_w + debt_w + mv_w || 1;
 
         return {
+            strategy_code: 'LOW_PB_DIV',
+            strategy_name: '默认策略',
+            strategy_type: 'stock_pick',
             filter: {
                 pb_max,
                 mv_min_100m,
@@ -1724,7 +1727,7 @@
             btn.textContent = '执行中...';
         }
         try {
-            const resp = await fetch('/api/jobs/run_screener', {method: 'POST'});
+            const resp = await fetch('/api/run_screener', {method: 'POST'});
             const data = await resp.json();
             if (!resp.ok || data.ok === false) {
                 alert('执行失败：' + (data.error || '服务异常'));
@@ -1776,44 +1779,68 @@
     }
 
     // ===== 数据任务中心 =====
-    const jobsConfig = [
-        {
-            code: 'fetch_basics',
-            name: '拉取股票基础信息',
-            description: '增量维护 dim_security / 股票基本资料',
-            api: '/api/jobs/fetch_basics'
-        },
-        {
-            code: 'fetch_kline',
-            name: '拉取日线行情',
-            description: '增量维护 fact_daily / dwm_indicators_daily',
-            api: '/api/jobs/fetch_kline'
-        },
-        {
-            code: 'fetch_financials',
-            name: '拉取财报数据',
-            description: '增量维护财务报表 fact_finance_*',
-            api: '/api/jobs/fetch_financials'
-        },
-        {
-            code: 'fetch_announcements',
-            name: '拉取公告数据',
-            description: '增量维护公开公告 fact_announcements',
-            api: '/api/jobs/fetch_announcements'
-        },
-        {
-            code: 'calc_indicators',
-            name: '计算技术 & 估值指标',
-            description: '基于行情 + 财报，计算 MA / PE / PB / 股息率等',
-            api: '/api/jobs/calc_indicators'
-        },
-        {
-            code: 'run_screener',
-            name: '执行当日选股',
-            description: '根据当前策略，生成 dm_screen_pick 选股结果',
-            api: '/api/jobs/run_screener'
-        }
-    ];
+const jobsConfig = [
+    {
+        code: 'query_stock_basic',
+        name: '拉取股票基础信息',
+        description: '增量维护 dim_security / 证券基本资料 + 行业',
+        api: '/api/jobs/query_stock_basic'
+    },
+    {
+        code: 'query_history_k_data_plus',
+        name: '拉取日线行情',
+        description: '增量维护 fact_daily / dwm_indicators_daily（行情字段）',
+        api: '/api/jobs/query_history_k_data_plus'
+    },
+    {
+        code: 'query_dividend_data',
+        name: '拉取除权除息/分红',
+        description: '增量维护 fact_dividend / 除权除息信息',
+        api: '/api/jobs/query_dividend_data'
+    },
+    {
+        code: 'query_profit_data',
+        name: '拉取季度盈利能力',
+        description: '增量维护 fact_profit_quarterly（ROE、净利率、毛利率等）',
+        api: '/api/jobs/query_profit_data'
+    },
+    {
+        code: 'query_operation_data',
+        name: '拉取季度营运能力',
+        description: '增量维护 fact_operation_quarterly（周转率、周转天数等）',
+        api: '/api/jobs/query_operation_data'
+    },
+    {
+        code: 'query_growth_data',
+        name: '拉取季度成长能力',
+        description: '增量维护 fact_growth_quarterly（同比增长指标）',
+        api: '/api/jobs/query_growth_data'
+    },
+    {
+        code: 'query_cash_flow_data',
+        name: '拉取季度现金流能力',
+        description: '增量维护 fact_cashflow_quarterly（现金流相关指标）',
+        api: '/api/jobs/query_cash_flow_data'
+    },
+    {
+        code: 'query_balance_data',
+        name: '拉取季度偿债能力',
+        description: '增量维护 fact_balance_quarterly（流动比率、速动比率等）',
+        api: '/api/jobs/query_balance_data'
+    },
+    {
+        code: 'calc_scores',
+        name: '计算综合评分',
+        description: '生成/更新 dm_stock_scores，供选股与榜单使用',
+        api: '/api/jobs/calc_scores'
+    },
+    {
+        code: 'run_screener',
+        name: '执行当日选股',
+        description: '根据当前策略，生成 dm_screen_pick 选股结果',
+        api: '/api/run_screener'
+    }
+];
 
     let jobsStatusMap = {};
 
@@ -1943,7 +1970,7 @@
             btn.textContent = '执行中...';
         }
 
-        const codes = ['fetch_basics', 'fetch_kline', 'fetch_financials', 'fetch_announcements', 'calc_indicators'];
+        const codes = ['query_stock_basic', 'query_history_k_data_plus', 'query_dividend_data', 'query_profit_data', 'query_operation_data', 'query_growth_data', 'query_cash_flow_data', 'query_balance_data', 'calc_scores'];
         for (const code of codes) {
             const job = jobsConfig.find(j => j.code === code);
             if (!job) continue;
@@ -2074,7 +2101,7 @@
             const defaults = [
                 { key: '运行环境', value: 'DEV', desc: '本地开发环境' },
                 { key: '数据库', value: 'SQL Server / stock', desc: '存储 dim_security / fact_daily 等表' },
-                { key: '数据源优先级', value: 'Choice → BaoStock', desc: '优先使用东财 Choice，失败时 BaoStock 兜底' }
+                { key: '数据源', value: 'BaoStock', desc: '使用BaoStock数据接口，http://www.baostock.com/' }
             ];
             defaults.forEach(item => {
                 const tr = document.createElement('tr');
