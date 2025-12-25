@@ -1,6 +1,4 @@
-# Python-Stock-Quantification
-Python Stock Quantification
-# 股票投资模型（BaoStock + AkShare + SQL Server）
+# 股票量化投资模型（BaoStock + Flask + SQL Server）
 
 面向 A 股的低估值 + 高质量股票筛选与综合评分系统。  
 数据入库至 SQL Server，通过 Flask 提供 API，前端用 HTML + JS + ECharts 展示。
@@ -13,7 +11,7 @@ Python Stock Quantification
 ┌────────────────────────────────────────────────────────┐
                        前端展示层 (HTML + JS + ECharts)
     ├─ 股票筛选页：低 PB + 综合评分列表（支持条件筛选）
-    └─ 个股详情页：K 线、财务、公告、综合评分拆解 Tab
+    └─ 个股详情页：K 线、财务、除权分红、综合评分拆解
 └────────────────────────────────────────────────────────┘
                 ▲                │
                 │  JSON API      │
@@ -34,10 +32,16 @@ Python Stock Quantification
 ┌────────────────────────────────────────────────────────┐
                 因子与综合评分层 (Python ETL + SQL)
     ├─ etl/calc_indicators.py
-    │    • 基于 fact_daily + fact_finance_annual
-    │    • 计算 PB、MA250 等日度因子
-    │    • 落表：dwm_indicators_daily
-    │        - ts_code, trade_date, close, ma250, pb, below_ma250
+    │    • 盈利	企业赚钱能力  20%
+    │      运营	资产运转效率  15%
+    │      成长	业绩扩张能力  15%
+    │      偿债	财务稳健性  10%
+    │      现金流	盈利质量  10%
+    │      估值 & 技术	定价与趋势  20%
+    │      分红	股东回报  10%
+    │  
+    │    • 落表：dbo.dws_stock_score_daily
+    │
     ├─ etl/calc_scores.py（预留/建议新增）
     │    • 基于市值、资产负债率、ROE、PE、PB 计算 0–100 分
     │    • 维度：估值 / 盈利 / 安全 / 规模
@@ -62,15 +66,19 @@ Python Stock Quantification
                 │ 数据采集 (批量任务)
                 ▼
 ┌────────────────────────────────────────────────────────┐
-                       数据采集层 (BaoStock + AkShare)
-    ├─ jobs/fetch_basics.py
-    │    • BaoStock 股票基础信息 → dim_security
-    ├─ jobs/fetch_kline.py
-    │    • BaoStock 日 K（前复权）→ fact_daily
-    ├─ jobs/fetch_financials.py
-    │    • AkShare 财报指标（含 ROE、资产负债率等）→ fact_finance_annual
-    └─ jobs/fetch_announcements.py
-         • AkShare 公告数据 → dwd_announcement
+                       数据采集层 (BaoStock)
+    ├─ jobs/query_stock_basic.py
+    │    • BaoStock 股票基础信息 → [dbo].[dwd_stock_basic_all]
+    ├─ jobs/query_history_k_data_plus.py
+    │    • BaoStock 日K线 → [dbo].[dwd_kline_daily_raw]
+    ├─ jobs/query_profit_data.py
+    │    • BaoStock 盈利能力指标（含 净利率/毛利率/ROE等）→ [dbo].[fact_profit_quarterly]
+    ├─ jobs/query_balance_data.py
+    │    • BaoStock 偿债能力指标
+    ├─ jobs/query_cash_flow_data.py
+    │    • BaoStock 现金流指标
+    └─ jobs/query_operation_data.py
+         • BaoStock 运营能力指标 → [dbo].[fact_operation_quarterly]
 └────────────────────────────────────────────────────────┘
                 ▲
                 │ SQL Server
@@ -91,9 +99,10 @@ Python Stock Quantification
 project_root/
 │
 ├─ app.py                      # Flask 主入口 & 路由
-├─ requirements.txt
+├─ requirements.txt            # python依赖库
 │
 ├─ common/
+│   ├─ baostock_quota.py       # BaoStock API调用管理
 │   └─ db.py                   # SQL Server 连接封装 (pyodbc)
 │
 ├─ etl/
@@ -102,13 +111,15 @@ project_root/
 │   └─ screener.py             # 选股逻辑 → dm_screen_pick
 │
 ├─ jobs/
-│   ├─ fetch_basics.py         # 拉取股票基础信息 → dim_security
-│   ├─ fetch_kline.py          # 拉取日 K 数据 → fact_daily
-│   ├─ fetch_financials.py     # 拉取财务数据 → fact_finance_annual
-│   └─ fetch_announcements.py  # 拉取公告数据 → dwd_announcement
+│   ├─ query_stock_basic.py            # 拉取股票基础信息 → [dbo].[dwd_stock_basic_all]
+│   ├─ query_history_k_data_plus.py    # 拉取日 K 数据 → [dbo].[dwd_kline_daily_raw]
+│   ├─ query_profit_data.py            # 拉取盈利能力数据 → [dbo].[fact_profit_quarterly]
+│   └─ query_balance_data.py           # 拉取偿债能力数据 → [dbo].[fact_balance_quarterly]
 │
 ├─ sql/
-│   ├─ create_tables.sql       # 建表脚本（SQL Server）
-│   └─ sample_query.sql        # 样例查询
+│   └─ create_tables.sql       # 建表脚本（SQL Server）
+│
+├─ templates/
+│   └─ index.html              # 前端页面
 │
 └─ README.md                   # 项目自述文件（本文件）
